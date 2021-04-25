@@ -1,4 +1,5 @@
-FROM alpine:3.12
+ARG ALPINE_VERSION=3.13
+FROM alpine:${ALPINE_VERSION}
 MAINTAINER Thomas Spicer (thomas@openbridge.com)
 
 ARG NGINX_VERSION
@@ -69,6 +70,7 @@ RUN set -x  \
   " \
   && addgroup -g 82 -S www-data \
   && adduser -u 82 -D -S -h /var/cache/nginx -s /sbin/nologin -G www-data www-data \
+  && echo "@community http://dl-cdn.alpinelinux.org/alpine/v${ALPINE_VERSION}/community" >> /etc/apk/repositories \
   && apk add --no-cache --virtual .build-deps \
       alpine-sdk \
       autoconf \
