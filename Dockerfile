@@ -1,7 +1,5 @@
-ARG ALPINE_VERSION=edge
-FROM alpine:${ALPINE_VERSION}
+FROM alpine:edge
 
-ARG NGINX_VERSION
 ENV VAR_PREFIX=/var/run \
     LOG_PREFIX=/var/log/nginx \
     TEMP_PREFIX=/tmp \
@@ -10,6 +8,7 @@ ENV VAR_PREFIX=/var/run \
     CERTS_PREFIX=/etc/pki/tls
 
 COPY /geoip/ /usr/local/share/GeoIP/
+COPY conf/ /conf
 ADD https://raw.githubusercontent.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker/master/install-ngxblocker /usr/local/sbin/install-ngxblocker
 ADD https://raw.githubusercontent.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker/master/setup-ngxblocker /usr/local/sbin/setup-ngxblocker
 ADD https://raw.githubusercontent.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker/master/update-ngxblocker /usr/local/sbin/update-ngxblocker
@@ -23,6 +22,7 @@ RUN mkdir -p /run/nginx \
   && echo "@testing http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
   && chown -R www-data:www-data /usr/local/share/GeoIP/ \
   && apk add --no-cache --update \
+   esh \
    curl \
    tini \
    nginx \
