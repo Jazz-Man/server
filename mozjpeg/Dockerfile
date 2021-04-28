@@ -11,7 +11,7 @@ RUN abuild-keygen -a -i -n -q
 
 # Buildind mozjpeg and installing it
 WORKDIR /tmp/mozjpeg
-COPY --chown=abuild:abuild ./APKBUILD ./
+COPY --chown=abuild:abuild APKBUILD ./
 RUN sudo chown abuild:abuild ./ \
     && abuild deps \
     && abuild -r \
