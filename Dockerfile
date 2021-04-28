@@ -9,6 +9,7 @@ ENV VAR_PREFIX=/var/run \
 
 COPY /geoip/ /usr/local/share/GeoIP/
 COPY /conf/ /conf
+COPY --from=vsokolyk/mozjpeg /release/mozjpeg*.apk /mozjpeg/
 ADD https://raw.githubusercontent.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker/master/install-ngxblocker /usr/local/sbin/install-ngxblocker
 ADD https://raw.githubusercontent.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker/master/setup-ngxblocker /usr/local/sbin/setup-ngxblocker
 ADD https://raw.githubusercontent.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker/master/update-ngxblocker /usr/local/sbin/update-ngxblocker
@@ -21,6 +22,7 @@ RUN mkdir -p /run/nginx \
   && echo "@edge http://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories \
   && echo "@testing http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
   && chown -R www-data:www-data /usr/local/share/GeoIP/ \
+  && apk add --no-cache --update --allow-untrusted /mozjpeg/*.apk \
   && apk add --no-cache --update \
    esh \
    curl \
