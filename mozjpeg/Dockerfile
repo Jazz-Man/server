@@ -1,4 +1,4 @@
-FROM alpine:edge AS mozjpeg
+FROM alpine:3.12.3 AS mozjpeg
 RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
     && apk add --no-cache alpine-sdk sudo \
     && adduser -s /bin/sh -D -G abuild abuild \
@@ -18,5 +18,5 @@ RUN sudo chown abuild:abuild ./ \
     && sudo apk add --allow-untrusted /home/abuild/packages/tmp/x86_64/*.apk
 
 # Create Release image without dev dependencies
-FROM alpine:edge AS release
+FROM alpine:3.12.3 AS release
 COPY --from=mozjpeg /home/abuild/packages/tmp/x86_64/mozjpeg*.apk /release/
