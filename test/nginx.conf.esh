@@ -1,0 +1,11 @@
+http {
+    access_log <%= $LOG_PREFIX/access.log %> main;
+
+    resolver <%= $VAR_PREFIX %>;
+
+    <% if $TEST_ENV_VAR; then -%>
+    lua_package_path test;
+    <% fi -%>
+
+    <%# The rest of the config is omitted %>
+}
