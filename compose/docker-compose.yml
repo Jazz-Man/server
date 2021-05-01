@@ -5,8 +5,8 @@ services:
       context: ../
       cache_from:
         - alpine:edge
-        #    image: openbridge/nginx
-    container_name: nginx
+        - vsokolyk/mozjpeg
+    container_name: nginx-buster
     depends_on:
       - redis
     ports:
@@ -25,8 +25,8 @@ services:
       nofile:
           soft: 49999
           hard: 99999
-    env_file:
-      - ./../env/html.env
+#    env_file:
+#      - ./../env/html.env
   redis:
     image: redis:alpine
     restart: unless-stopped
