@@ -23,7 +23,7 @@ RUN mkdir -p /run/nginx \
   && echo "@testing http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
   && chown -R www-data:www-data /usr/local/share/GeoIP/ \
   && apk add --no-cache --update --allow-untrusted /mozjpeg/*.apk \
-  && apk add --no-cache --update \
+  && apk add --no-cache \
    esh \
    curl \
    tini \
@@ -40,11 +40,10 @@ RUN mkdir -p /run/nginx \
    nginx-mod-http-xslt-filter \
    nginx-mod-http-redis2 \
    nginx-mod-http-set-misc \
-   nginx-mod-http-image-filter \
   && chmod +x /usr/local/sbin/install-ngxblocker \
   && chmod +x /usr/local/sbin/setup-ngxblocker \
   && chmod +x /usr/local/sbin/update-ngxblocker \
-  && install-ngxblocker
+  && install-ngxblocker -x
 
 EXPOSE 80/tcp 443/tcp
 
