@@ -5,9 +5,9 @@ server {
   listen                          *:80 default_server;
   listen                          [::]:80 default_server reuseport;
   access_log                      {{LOG_PREFIX}}/access.log main_ext if=$no_logs;
-  include                         /etc/nginx/bots.d/blockbots.conf;
-  include                         /etc/nginx/bots.d/ddos.conf;
-  include                         /etc/nginx/header.d/httpd.conf;
+  include                         bots.d/blockbots.conf;
+  include                         bots.d/ddos.conf;
+  include                         header.d/httpd.conf;
   return                          301 https://$host$request_uri;
 }
 
@@ -30,18 +30,18 @@ server {
   userid_expires                  max;
   userid_domain                   {{NGINX_SERVER_NAME}};
 
-  include                         /etc/nginx/conf.d/ssl.conf;
+  include                         conf.d/ssl.conf;
 
-  include                         /etc/nginx/header.d/httpd.conf;
-  include                         /etc/nginx/header.d/proxy.conf;
+  include                         header.d/httpd.conf;
+  include                         header.d/proxy.conf;
 
-  include                         /etc/nginx/conf.d/cdn.conf;
+  include                         conf.d/cdn.conf;
 
-  include                         /etc/nginx/conf.d/prerender.conf;
+  include                         conf.d/prerender.conf;
 
-  include                         /etc/nginx/conf.d/health.conf;
-  include                         /etc/nginx/conf.d/purge.conf;
-  include                         /etc/nginx/conf.d/failed.conf;
+  include                         conf.d/health.conf;
+  include                         conf.d/purge.conf;
+  include                         conf.d/failed.conf;
 }
 
 server {
@@ -56,7 +56,7 @@ server {
   if ($redirect_uri)              {return 301 $redirect_uri;}
   access_log                      {{LOG_PREFIX}}/access.log main_ext if=$no_logs;
 
-  include                         /etc/nginx/conf.d/location.conf;
-  include                         /etc/nginx/redis.d/location.conf;
-  include                         /etc/nginx/conf.d/secure.conf;
+  include                         conf.d/location.conf;
+  include                         redis.d/location.conf;
+  include                         conf.d/secure.conf;
 }
