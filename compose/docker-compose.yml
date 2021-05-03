@@ -25,8 +25,6 @@ services:
       nofile:
           soft: 49999
           hard: 99999
-#    env_file:
-#      - ./../env/html.env
   redis:
     image: redis:alpine
     restart: unless-stopped
