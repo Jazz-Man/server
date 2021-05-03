@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
 #---------------------------------------------------------------------
 # configure environment
@@ -36,7 +36,7 @@ function monit() {
 	} | tee /etc/monitrc
 
 	chmod 700 /etc/monitrc
-	RUN="monit -c /etc/monitrc" && /usr/bin/env bash -c "${RUN}"
+	RUN="monit -c /etc/monitrc" && /usr/bin/env sh -c "${RUN}"
 
 }
 
@@ -86,11 +86,11 @@ fi
 
 function permissions() {
 
-  find ${NGINX_DOCROOT} ! -user www-data -exec /usr/bin/env bash -c 'i="$1"; chown www-data:www-data "$i"' _ {} \;
-  find ${NGINX_DOCROOT} ! -perm 755 -type d -exec /usr/bin/env bash -c 'i="$1"; chmod 755  "$i"' _ {} \;
-  find ${NGINX_DOCROOT} ! -perm 644 -type f -exec /usr/bin/env bash -c 'i="$1"; chmod 644 "$i"' _ {} \;
-  find ${CACHE_PREFIX} ! -perm 755 -type d -exec /usr/bin/env bash -c 'i="$1"; chmod 755  "$i"' _ {} \;
-  find ${CACHE_PREFIX} ! -perm 644 -type f -exec /usr/bin/env bash -c 'i="$1"; chmod 644 "$i"' _ {} \;
+  find ${NGINX_DOCROOT} ! -user www-data -exec /usr/bin/env sh -c 'i="$1"; chown www-data:www-data "$i"' _ {} \;
+  find ${NGINX_DOCROOT} ! -perm 755 -type d -exec /usr/bin/env sh -c 'i="$1"; chmod 755  "$i"' _ {} \;
+  find ${NGINX_DOCROOT} ! -perm 644 -type f -exec /usr/bin/env sh -c 'i="$1"; chmod 644 "$i"' _ {} \;
+  find ${CACHE_PREFIX} ! -perm 755 -type d -exec /usr/bin/env sh -c 'i="$1"; chmod 755  "$i"' _ {} \;
+  find ${CACHE_PREFIX} ! -perm 644 -type f -exec /usr/bin/env sh -c 'i="$1"; chmod 644 "$i"' _ {} \;
 
 }
 
@@ -106,7 +106,7 @@ function dev() {
    if [[ ! -f /etc/letsencrypt/live/${NGINX_SERVER_NAME}/privkey.pem ]] || [[ ! -f /etc/letsencrypt/live/${NGINX_SERVER_NAME}/fullchain.pem ]]; then
      echo "OK: Installing development SSL certificates..."
      mkdir -p /etc/letsencrypt/live/${NGINX_SERVER_NAME}
-     /usr/bin/env bash -c "openssl req -new -newkey rsa:4096 -days 365 -nodes -x509 -subj /C=US/ST=MA/L=Boston/O=ACMECORP/CN=${NGINX_SERVER_NAME} -keyout /etc/letsencrypt/live/${NGINX_SERVER_NAME}/privkey.pem -out /etc/letsencrypt/live/${NGINX_SERVER_NAME}/fullchain.pem"
+     /usr/bin/env sh -c "openssl req -new -newkey rsa:4096 -days 365 -nodes -x509 -subj /C=US/ST=MA/L=Boston/O=ACMECORP/CN=${NGINX_SERVER_NAME} -keyout /etc/letsencrypt/live/${NGINX_SERVER_NAME}/privkey.pem -out /etc/letsencrypt/live/${NGINX_SERVER_NAME}/fullchain.pem"
      cp /etc/letsencrypt/live/${NGINX_SERVER_NAME}/fullchain.pem  /etc/letsencrypt/live/${NGINX_SERVER_NAME}/chain.pem
    fi
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
 # This will test to make sure that the upstream prerendering service is operating correctly. Without the service running correctly SEO for the site will be impacted
 

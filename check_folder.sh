@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
 #capture first passed variable
 FOLDER_PATH=${1}
