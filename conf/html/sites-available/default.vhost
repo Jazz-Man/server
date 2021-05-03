@@ -44,7 +44,6 @@ server {
      include                      /etc/nginx/conf.d/health.conf;
   }
 
-  include                         /etc/nginx/conf.d/monit.conf;
   include                         /etc/nginx/conf.d/purge.conf;
   include                         /etc/nginx/conf.d/failed.conf;
 }
