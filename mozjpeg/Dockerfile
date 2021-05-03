@@ -5,8 +5,6 @@ RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/reposit
     && echo "%abuild ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 USER abuild
-ENV ABUILD_LAST_COMMIT "1"
-ENV SOURCE_DATE_EPOCH "1"
 RUN abuild-keygen -a -i -n -q
 
 # Buildind mozjpeg and installing it
