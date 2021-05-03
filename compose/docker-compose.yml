@@ -7,8 +7,10 @@ services:
         - alpine:edge
         - vsokolyk/mozjpeg
     container_name: nginx-buster
-    depends_on:
-      - redis
+    environment:
+      NGINX_SERVER_NAME: my-local-site
+#    depends_on:
+#      - redis
     ports:
       - 80:80
       - 443:443
@@ -17,15 +19,14 @@ services:
     restart: unless-stopped
     volumes:
       - ./letsencrypt:/etc/letsencrypt
-      - ./../conf/html/nginx:/conf/html/nginx
-      - ./../conf/html/monit:/conf/html/monit
+      - ./../conf/html:/etc/nginx
       - ./../approot:/usr/share/nginx/html
     ulimits:
       nproc: 65535
       nofile:
           soft: 49999
           hard: 99999
-  redis:
-    image: redis:alpine
-    restart: unless-stopped
-    container_name: redis
+#  redis:
+#    image: redis:alpine
+#    restart: unless-stopped
+#    container_name: redis

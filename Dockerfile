@@ -5,16 +5,23 @@ ENV VAR_PREFIX=/var/run \
     TEMP_PREFIX=/tmp \
     CACHE_PREFIX=/var/cache \
     CONF_PREFIX=/etc/nginx \
-    CERTS_PREFIX=/etc/pki/tls \
-    NGINX_SERVER_NAME=my-test-site
+    CERTS_PREFIX=/etc/ssl-certs \
+    NGINX_SERVER_NAME=my-test-site \
+    NGINX_CONFIG=html \
+    NGINX_DOCROOT=/usr/share/nginx/html \
+    MKCERT_VERSION=1.4.3
 
 COPY /geoip/ /usr/local/share/GeoIP/
 COPY /conf/ /conf
+COPY docker-entrypoint.sh /usr/local/sbin/docker-entrypoint
+COPY check_folder.sh /usr/local/sbin/check_folder
+COPY check_host.sh /usr/local/sbin/check_host
+COPY check_wwwdata.sh /usr/local/sbin/check_wwwdata
 COPY --from=vsokolyk/mozjpeg /release/mozjpeg*.apk /mozjpeg/
 ADD https://raw.githubusercontent.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker/master/install-ngxblocker /usr/local/sbin/install-ngxblocker
 ADD https://raw.githubusercontent.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker/master/setup-ngxblocker /usr/local/sbin/setup-ngxblocker
 ADD https://raw.githubusercontent.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker/master/update-ngxblocker /usr/local/sbin/update-ngxblocker
-ADD https://github.com/FiloSottile/mkcert/releases/download/v1.4.3/mkcert-v1.4.3-linux-amd64 /usr/local/sbin/mkcert
+ADD https://github.com/FiloSottile/mkcert/releases/download/v${MKCERT_VERSION}/mkcert-v${MKCERT_VERSION}-linux-amd64 /usr/local/sbin/mkcert
 
 RUN mkdir -p /run/nginx \
   && addgroup -g 82 -S www-data \
@@ -42,10 +49,10 @@ RUN mkdir -p /run/nginx \
    nginx-mod-http-set-misc \
   && chmod -R +x /usr/local/sbin/ \
   && mkcert -install \
-  && mkdir /cert \
+  && mkdir /$CERTS_PREFIX \
   && mkcert \
-    -key-file /cert/$NGINX_SERVER_NAME.dev-key.pem \
-    -cert-file /cert/$NGINX_SERVER_NAME.dev.pem \
+    -key-file /$CERTS_PREFIX/$NGINX_SERVER_NAME.dev-key.pem \
+    -cert-file /$CERTS_PREFIX/$NGINX_SERVER_NAME.dev.pem \
      $NGINX_SERVER_NAME.dev \
      "*.$NGINX_SERVER_NAME.dev" \
      mail@$NGINX_SERVER_NAME.dev \
