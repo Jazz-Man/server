@@ -8,7 +8,9 @@ services:
         - vsokolyk/mozjpeg
     container_name: nginx-buster
     environment:
-      NGINX_SERVER_NAME: my-local-site
+      - NGINX_SERVER_NAME=my-local-site
+      - PHP_FPM_UPSTREAM=false
+      - REDIS_UPSTREAM=false
 #    depends_on:
 #      - redis
     ports:
@@ -18,7 +20,8 @@ services:
     tmpfs: /var/cache
     restart: unless-stopped
     volumes:
-      - ./letsencrypt:/etc/letsencrypt
+#      - ./ssl-certs:/etc/certs:rw
+      - ./template:/nginx-template
       - ./../conf/html:/etc/nginx
       - ./../approot:/usr/share/nginx/html
     ulimits:
