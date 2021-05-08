@@ -1,4 +1,7 @@
 .idea/*
 approot/*
+compose/ssl-certs/*
+compose/template/*
+!compose/template/*.template.conf
 !logs/
 !.gitkeep
