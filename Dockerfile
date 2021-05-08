@@ -1,10 +1,5 @@
 FROM alpine:edge
 
-ARG PHP_FPM_UPSTREAM="localhost:9000;"
-ARG NGINX_PROXY_UPSTREAM="localhost:8080;"
-ARG REDIS_UPSTREAM="127.0.0.1:6379;"
-ARG GEO="127.0.0.1:6379;"
-
 ENV VAR_PREFIX=/var/run \
     LOG_PREFIX=/var/log/nginx \
     TEMP_PREFIX=/tmp \
@@ -13,14 +8,10 @@ ENV VAR_PREFIX=/var/run \
     CERTS_PREFIX=/etc/ssl-certs \
     NGINX_SERVER_NAME=my-test-site \
     NGINX_CONFIG=html \
-    NGINX_DOCROOT=/var/www \
-    PHP_FPM_UPSTREAM=${PHP_FPM_UPSTREAM:-false} \
-    NGINX_PROXY_UPSTREAM=${NGINX_PROXY_UPSTREAM:-false} \
-    REDIS_UPSTREAM=${REDIS_UPSTREAM:-false} \
-    MKCERT_VERSION=1.4.3 \
-    GEO_IP_DB_DIR=/usr/local/share/GeoIP/
+    NGINX_DOCROOT=/usr/share/nginx/html \
+    MKCERT_VERSION=1.4.3
 
-COPY /geoip/ $GEO_IP_DB_DIR
+COPY /geoip/ /usr/local/share/GeoIP/
 COPY /conf/ /conf
 COPY docker-entrypoint.sh /usr/local/sbin/docker-entrypoint
 COPY check_folder.sh /usr/local/sbin/check_folder
@@ -32,12 +23,12 @@ ADD https://raw.githubusercontent.com/mitchellkrogza/nginx-ultimate-bad-bot-bloc
 ADD https://raw.githubusercontent.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker/master/update-ngxblocker /usr/local/sbin/update-ngxblocker
 ADD https://github.com/FiloSottile/mkcert/releases/download/v${MKCERT_VERSION}/mkcert-v${MKCERT_VERSION}-linux-amd64 /usr/local/sbin/mkcert
 
-RUN mkdir -p /run/nginx $CERTS_PREFIX $NGINX_DOCROOT \
+RUN mkdir -p /run/nginx \
   && addgroup -g 82 -S www-data \
   && adduser -u 82 -D -S -h /var/cache/nginx -s /sbin/nologin -G www-data www-data \
   && echo "@community http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories \
   && echo "@testing http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
-  && chown -R www-data:www-data $GEO_IP_DB_DIR \
+  && chown -R www-data:www-data /usr/local/share/GeoIP/ \
   && apk add --no-cache --update --allow-untrusted /mozjpeg/*.apk \
   && apk add --no-cache \
    esh \
@@ -58,10 +49,10 @@ RUN mkdir -p /run/nginx $CERTS_PREFIX $NGINX_DOCROOT \
    nginx-mod-http-set-misc \
   && chmod -R +x /usr/local/sbin/ \
   && mkcert -install \
-  && mkdir -p $CERTS_PREFIX \
+  && mkdir /$CERTS_PREFIX \
   && mkcert \
-    -key-file $CERTS_PREFIX/$NGINX_SERVER_NAME.dev-key.pem \
-    -cert-file $CERTS_PREFIX/$NGINX_SERVER_NAME.dev.pem \
+    -key-file /$CERTS_PREFIX/$NGINX_SERVER_NAME.dev-key.pem \
+    -cert-file /$CERTS_PREFIX/$NGINX_SERVER_NAME.dev.pem \
      $NGINX_SERVER_NAME.dev \
      "*.$NGINX_SERVER_NAME.dev" \
      mail@$NGINX_SERVER_NAME.dev \
