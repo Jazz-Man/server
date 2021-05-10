@@ -8,9 +8,10 @@ services:
         - vsokolyk/mozjpeg
     container_name: nginx-buster
     environment:
-      - NGINX_SERVER_NAME=my-local-site
+      - NGINX_SERVER_NAME=nginx-buster
       - PHP_FPM_UPSTREAM=false
       - REDIS_UPSTREAM=false
+      - NOCACHE_COOKIE=comment_author wp-postpass wordpress_test_cookie wordpress_no_cache wordpress_logged_in
 #    depends_on:
 #      - redis
     ports:
@@ -22,7 +23,7 @@ services:
     volumes:
 #      - ./ssl-certs:/etc/certs:rw
       - ./template:/nginx-template
-      - ./../conf/html:/etc/nginx
+#      - ./../conf/html:/etc/nginx
       - ./../approot:/usr/share/nginx/html
     ulimits:
       nproc: 65535

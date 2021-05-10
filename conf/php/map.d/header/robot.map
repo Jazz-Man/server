@@ -1,3 +1,2 @@
-~\/*staging.openbridge*?$ "noindex, follow";
+#~\/*staging.openbridge*?$ "noindex, follow";
 ~\/*.(html)?$ "all";
-~\/*.(php)?$ "all";

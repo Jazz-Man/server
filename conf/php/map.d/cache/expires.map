@@ -1,4 +1,5 @@
 default off;
+~image/ max;
 ~assets/ max;
 application/ecmascript max;
 application/javascript max;
@@ -18,8 +19,8 @@ image/jpeg max;
 image/png max;
 image/svg+xml max;
 image/tiff max;
-image/x-icon max;
 image/vnd.microsoft.icon max;
+image/x-icon max;
 image/webp max;
 text/x-component max;
 text/x-js max;

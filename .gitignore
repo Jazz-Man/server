@@ -2,6 +2,6 @@
 approot/*
 compose/ssl-certs/*
 compose/template/*
-!compose/template/*.template.conf
+!compose/template/*.template*
 !logs/
 !.gitkeep

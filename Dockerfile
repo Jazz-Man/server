@@ -1,34 +1,49 @@
 FROM alpine:edge
 
+ARG PHP_FPM_UPSTREAM='localhost:9000'
+ARG NGINX_PROXY_UPSTREAM='localhost:8080'
+ARG REDIS_UPSTREAM='127.0.0.1:6379'
+ARG GEO_RATELIMIT='10.0.0.0/8 192.168.0.0/24 127.0.0.0/24'
+ARG NO_LOGS_USER_AGENT='Monit'
+ARG ROBOT_NOINDEX=false
+ARG NGINX_SERVER_NAME=my-test-site
+ARG DOMAIN_ZONE=dev
+
 ENV VAR_PREFIX=/var/run \
     LOG_PREFIX=/var/log/nginx \
     TEMP_PREFIX=/tmp \
     CACHE_PREFIX=/var/cache \
     CONF_PREFIX=/etc/nginx \
     CERTS_PREFIX=/etc/ssl-certs \
-    NGINX_SERVER_NAME=my-test-site \
+    NGINX_SERVER_NAME=${NGINX_SERVER_NAME:-localhost} \
+    DOMAIN_ZONE=${DOMAIN_ZONE:-dev} \
     NGINX_CONFIG=html \
-    NGINX_DOCROOT=/usr/share/nginx/html \
-    MKCERT_VERSION=1.4.3
+    NGINX_DOCROOT=/var/www \
+    PHP_FPM_UPSTREAM=${PHP_FPM_UPSTREAM:-false} \
+    NGINX_PROXY_UPSTREAM=${NGINX_PROXY_UPSTREAM:-false} \
+    REDIS_UPSTREAM=${REDIS_UPSTREAM:-false} \
+    MKCERT_VERSION=1.4.3 \
+    GEO_IP_DB_DIR=/usr/local/share/GeoIP/ \
+    GEO_RATELIMIT=${GEO_RATELIMIT:-false} \
+    NOCACHE_COOKIE='comment_author wp-postpass wordpress_test_cookie wordpress_no_cache wordpress_logged_in' \
+    NO_LOGS_USER_AGENT=${NO_LOGS_USER_AGENT} \
+    ROBOT_NOINDEX=${ROBOT_NOINDEX} \
 
-COPY /geoip/ /usr/local/share/GeoIP/
+COPY /geoip/ $GEO_IP_DB_DIR
 COPY /conf/ /conf
 COPY docker-entrypoint.sh /usr/local/sbin/docker-entrypoint
 COPY check_folder.sh /usr/local/sbin/check_folder
 COPY check_host.sh /usr/local/sbin/check_host
 COPY check_wwwdata.sh /usr/local/sbin/check_wwwdata
 COPY --from=vsokolyk/mozjpeg /release/mozjpeg*.apk /mozjpeg/
-ADD https://raw.githubusercontent.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker/master/install-ngxblocker /usr/local/sbin/install-ngxblocker
-ADD https://raw.githubusercontent.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker/master/setup-ngxblocker /usr/local/sbin/setup-ngxblocker
-ADD https://raw.githubusercontent.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker/master/update-ngxblocker /usr/local/sbin/update-ngxblocker
 ADD https://github.com/FiloSottile/mkcert/releases/download/v${MKCERT_VERSION}/mkcert-v${MKCERT_VERSION}-linux-amd64 /usr/local/sbin/mkcert
 
-RUN mkdir -p /run/nginx \
+RUN mkdir -p /run/nginx $CERTS_PREFIX $NGINX_DOCROOT \
   && addgroup -g 82 -S www-data \
   && adduser -u 82 -D -S -h /var/cache/nginx -s /sbin/nologin -G www-data www-data \
   && echo "@community http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories \
   && echo "@testing http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
-  && chown -R www-data:www-data /usr/local/share/GeoIP/ \
+  && chown -R www-data:www-data $GEO_IP_DB_DIR \
   && apk add --no-cache --update --allow-untrusted /mozjpeg/*.apk \
   && apk add --no-cache \
    esh \
@@ -47,15 +62,17 @@ RUN mkdir -p /run/nginx \
    nginx-mod-http-xslt-filter \
    nginx-mod-http-redis2 \
    nginx-mod-http-set-misc \
+  && apk add --no-cache -X http://dl-cdn.alpinelinux.org/alpine/edge/testing \
+   nginx-ultimate-bad-bot-blocker \
   && chmod -R +x /usr/local/sbin/ \
   && mkcert -install \
-  && mkdir /$CERTS_PREFIX \
+  && mkdir -p $CERTS_PREFIX \
   && mkcert \
-    -key-file /$CERTS_PREFIX/$NGINX_SERVER_NAME.dev-key.pem \
-    -cert-file /$CERTS_PREFIX/$NGINX_SERVER_NAME.dev.pem \
-     $NGINX_SERVER_NAME.dev \
-     "*.$NGINX_SERVER_NAME.dev" \
-     mail@$NGINX_SERVER_NAME.dev \
+    -key-file $CERTS_PREFIX/$NGINX_SERVER_NAME.dev-key.pem \
+    -cert-file $CERTS_PREFIX/$NGINX_SERVER_NAME.dev.pem \
+     $NGINX_SERVER_NAME.$DOMAIN_ZONE \
+     "*.$NGINX_SERVER_NAME.$DOMAIN_ZONE" \
+     mail@$NGINX_SERVER_NAME.$DOMAIN_ZONE \
      127.0.0.1 \
      ::1
 #  && install-ngxblocker -x
