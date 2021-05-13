@@ -130,13 +130,13 @@ RUN set -x \
 
 ADD https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar /usr/local/bin/wp
 
-COPY ./template/* /template/
-COPY ./docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+COPY ./template/* /template-php-fpm/
+COPY ./docker-entrypoint.sh /usr/local/bin/php-fpm-entrypoint.sh
 
 RUN chmod -R +x /usr/local/bin \
 	&& chown $WWW_USER:$WWW_USER_GROUP /usr/local/bin/wp \
 	&& echo 'alias wp="wp --allow-root"' >> /root/.bashrc \
-	&& /usr/local/bin/docker-entrypoint.sh \
+	&& /usr/local/bin/php-fpm-entrypoint.sh \
 	&& rm -rf $PHP_LIB_DIR/opcache/* \
 	&& rm -rf $TEMP_PREFIX/* \
 	&& rm -rf $CACHE_PREFIX/apk/* \
