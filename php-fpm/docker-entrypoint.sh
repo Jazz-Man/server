@@ -16,11 +16,3 @@ esh -o $PHP_CONF_PREFIX/php-fpm.conf /template-php-fpm/php-fpm.conf
 esh -o $PHP_CONF_PREFIX/php-fpm.d/frontend.conf /template-php-fpm/php-fpm-frontend.conf
 esh -o $PHP_CONF_PREFIX/php-fpm.d/backend.conf /template-php-fpm/php-fpm-backend.conf
 esh -o $PHP_CONF_PREFIX/conf.d/zz-php.ini /template-php-fpm/zz-php.ini
-
-
-composer global config sort-packages true
-composer global config preferred-install dist
-composer global config optimize-autoloader true
-composer global config classmap-authoritative true
-composer global config apcu-autoloader true
-composer global require hirak/prestissimo

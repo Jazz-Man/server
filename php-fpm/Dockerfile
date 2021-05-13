@@ -137,6 +137,12 @@ RUN chmod -R +x /usr/local/bin \
 	&& chown $WWW_USER:$WWW_USER_GROUP /usr/local/bin/wp \
 	&& echo 'alias wp="wp --allow-root"' >> /root/.bashrc \
 	&& /usr/local/bin/php-fpm-entrypoint.sh \
+	&& composer global config sort-packages true \
+    && composer global config preferred-install dist \
+    && composer global config optimize-autoloader true \
+    && composer global config classmap-authoritative true \
+    && composer global config apcu-autoloader true \
+    && composer global require hirak/prestissimo \
 	&& rm -rf $PHP_LIB_DIR/opcache/* \
 	&& rm -rf $TEMP_PREFIX/* \
 	&& rm -rf $CACHE_PREFIX/apk/* \
