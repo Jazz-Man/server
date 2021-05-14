@@ -21,6 +21,8 @@ ENV VAR_PREFIX=/var/run \
     NO_LOGS_USER_AGENT=${NO_LOGS_USER_AGENT} \
     ROBOT_NOINDEX=${ROBOT_NOINDEX}
 
+WORKDIR $NGINX_SERVER_ROOT
+
 RUN mkdir -p $CACHE_PREFIX/nginx \
 		$NGINX_CONF_PREFIX/after.vhost.d \
 		$NGINX_CONF_PREFIX/before.vhost.d \
@@ -29,6 +31,7 @@ RUN mkdir -p $CACHE_PREFIX/nginx \
 		/etc/supervisor/conf.d \
 	&& chown $WWW_USER:$WWW_USER_GROUP $CACHE_PREFIX/nginx \
 	&& apk add --no-cache \
+		git@main-edge \
 		openssh@main-edge \
 		openssh-client@main-edge \
 		py3-setuptools@main-edge \
@@ -62,7 +65,5 @@ RUN chmod -R +x /usr/local/bin \
 	&& /usr/local/bin/nginx-entrypoint.sh
 
 EXPOSE $NGINX_LISTEN_PORT
-
-WORKDIR $NGINX_SERVER_ROOT
 
 #CMD ["supervisord","-n","-c","/etc/supervisord.conf"]
