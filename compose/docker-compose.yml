@@ -1,5 +1,17 @@
 version: '3'
 services:
+  coredns:
+    image: burkeazbill/docker-coredns
+    restart: always
+    expose:
+      - 53
+      - 53/udp
+    ports:
+      - 53:53
+      - 53:53/udp
+    volumes:
+      - ./coredns-config:/etc/coredns
+      - /var/run/docker.sock:/var/run/docker.sock
   nginx:
     build:
       context: ../
@@ -7,13 +19,14 @@ services:
         - alpine:edge
         - vsokolyk/mozjpeg
     container_name: nginx-buster
+    hostname: nginx-buster
     environment:
       - NGINX_SERVER_NAME=nginx-buster
       - PHP_FPM_UPSTREAM=false
       - REDIS_UPSTREAM=false
       - NOCACHE_COOKIE=comment_author wp-postpass wordpress_test_cookie wordpress_no_cache wordpress_logged_in
-#    depends_on:
-#      - redis
+    depends_on:
+      - coredns
     ports:
       - 80:80
       - 443:443
