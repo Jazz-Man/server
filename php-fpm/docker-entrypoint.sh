@@ -14,5 +14,9 @@ if [[ -z $PHP_MAX_CHILDREN ]]; then PHP_MAX_CHILDREN=$(($TOTALCPU * 2)); fi
 
 esh -o $PHP_CONF_PREFIX/php-fpm.conf /template-php-fpm/php-fpm.conf
 esh -o $PHP_CONF_PREFIX/php-fpm.d/frontend.conf /template-php-fpm/php-fpm-frontend.conf
-esh -o $PHP_CONF_PREFIX/php-fpm.d/backend.conf /template-php-fpm/php-fpm-backend.conf
+
+if [ "$PHP_FPM_ENABLE_BACKEND_POOL" != "false" ]; then
+  esh -o $PHP_CONF_PREFIX/php-fpm.d/backend.conf /template-php-fpm/php-fpm-backend.conf
+fi
+
 esh -o $PHP_CONF_PREFIX/conf.d/zz-php.ini /template-php-fpm/zz-php.ini
