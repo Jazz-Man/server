@@ -1,5 +1,6 @@
 FROM alpine:edge
 
+ARG PHP_LOG_STDERR
 ARG PHP_FPM_FRONTEND_PORT
 ARG PHP_FPM_BACKEND_PORT
 ARG PHP_FPM_ENABLE_ACCESS_LOG
@@ -16,6 +17,7 @@ ARG PHP_UPLOAD_MAX_FILESIZE
 ARG PHP_MAX_INPUT_VARS
 ARG PHP_MAX_EXECUTION_TIME
 ARG PHP_OPCACHE_ENABLE
+ARG PHP_SESSION_SERIALIZE_HANDLER
 ARG WWW_USER
 ARG WWW_USER_GROUP
 ARG REDIS_UPSTREAM
@@ -25,11 +27,13 @@ ENV TERM=xterm \
 	WWW_USER=${WWW_USER:-www-data} \
 	WWW_USER_GROUP=${WWW_USER_GROUP:-www-data} \
 	VAR_PREFIX=/var/run \
-	LOG_PREFIX=/var/log/php-fpm \
-	TEMP_PREFIX=/tmp \
-	PHP_CONF_PREFIX=/etc/php7 \
 	CACHE_PREFIX=/var/cache \
+	TEMP_PREFIX=/tmp \
+	PHP_LOG_PREFIX=/var/log/php-fpm \
+	PHP_LISTEN_PREFIX=${VAR_PREFIX}/php-fpm \
+	PHP_CONF_PREFIX=/etc/php7 \
 	PHP_LIB_DIR=/var/lib/php7 \
+	PHP_LOG_STDERR=${PHP_LOG_STDERR:-false} \
 	PHP_FPM_ENABLE_ACCESS_LOG=${PHP_FPM_ENABLE_ACCESS_LOG:-false} \
 	PHP_FPM_ENABLE_SLOW_LOG=${PHP_FPM_ENABLE_SLOW_LOG:-false} \
 	PHP_FPM_SLOW_LOG_TIMEOUT=${PHP_FPM_SLOW_LOG_TIMEOUT:-3s} \
@@ -46,13 +50,14 @@ ENV TERM=xterm \
     PHP_MAX_INPUT_VARS=${PHP_MAX_INPUT_VARS:-10000} \
     PHP_MAX_EXECUTION_TIME=${PHP_MAX_EXECUTION_TIME:-300} \
     PHP_OPCACHE_ENABLE=${PHP_OPCACHE_ENABLE:-1} \
+    PHP_SESSION_SERIALIZE_HANDLER=${PHP_SESSION_SERIALIZE_HANDLER:-igbinary} \
     REDIS_UPSTREAM=${REDIS_UPSTREAM:-false}
 
 COPY --from=vsokolyk/mozjpeg /release/mozjpeg*.apk /mozjpeg/
 
 RUN set -x \
 	&& addgroup -g 82 -S $WWW_USER \
-    && adduser -u 82 -D -S -h $CACHE_PREFIX/php-fpm -s /sbin/nologin -G $WWW_USER $WWW_USER_GROUP \
+    && adduser -u 82 -D -S -H -s /sbin/nologin -G $WWW_USER $WWW_USER_GROUP \
     && echo "@main-edge http://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories \
     && echo "@community-edge http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories \
     && echo "@testing-edge http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
@@ -122,10 +127,19 @@ RUN set -x \
       php7-yaml@community-edge \
       composer@community-legacy \
       mysql-client@main-edge \
-    && mkdir -p $VAR_PREFIX \
-    && mkdir -p $PHP_LIB_DIR/sessions \
-    && mkdir -p $PHP_LIB_DIR/opcache \
-    && mkdir -p $LOG_PREFIX \
+    && mkdir -p \
+        $VAR_PREFIX \
+		$PHP_LIB_DIR/sessions \
+		$PHP_LIB_DIR/opcache \
+	    $PHP_LOG_PREFIX \
+	    $PHP_LISTEN_PREFIX \
+	&& chown -R \
+		$WWW_USER:$WWW_USER_GROUP \
+		$PHP_CONF_PREFIX \
+		$PHP_LOG_PREFIX \
+		$CACHE_PREFIX \
+		$VAR_PREFIX \
+		$PHP_LIB_DIR \
     && rm -rf /etc/php7/php-fpm.d/*.conf
 
 ADD https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar /usr/local/bin/wp
@@ -134,15 +148,14 @@ COPY ./template/* /template-php-fpm/
 COPY ./docker-entrypoint.sh /usr/local/bin/php-fpm-entrypoint.sh
 
 RUN chmod -R +x /usr/local/bin \
-	&& chown $WWW_USER:$WWW_USER_GROUP /usr/local/bin/wp \
 	&& echo 'alias wp="wp --allow-root"' >> /root/.bashrc \
 	&& /usr/local/bin/php-fpm-entrypoint.sh \
 	&& composer global config sort-packages true \
-    && composer global config preferred-install dist \
-    && composer global config optimize-autoloader true \
-    && composer global config classmap-authoritative true \
-    && composer global config apcu-autoloader true \
-    && composer global require hirak/prestissimo \
+	&& composer global config preferred-install dist \
+	&& composer global config optimize-autoloader true \
+	&& composer global config classmap-authoritative true \
+	&& composer global config apcu-autoloader true \
+	&& composer global require hirak/prestissimo \
 	&& rm -rf $PHP_LIB_DIR/opcache/* \
 	&& rm -rf $TEMP_PREFIX/* \
 	&& rm -rf $CACHE_PREFIX/apk/* \
