@@ -20,3 +20,5 @@ if [ "$PHP_FPM_ENABLE_BACKEND_POOL" != "false" ]; then
 fi
 
 esh -o $PHP_CONF_PREFIX/conf.d/zz-php.ini /template-php-fpm/zz-php.ini
+
+chown -R $WWW_USER:$WWW_USER_GROUP $PHP_CONF_PREFIX
