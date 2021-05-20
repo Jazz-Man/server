@@ -1,4 +1,4 @@
-FROM vsokolyk/php-fpm:latest
+FROM vsokolyk/php-fpm:release-1.2.0
 
 ARG NGINX_LISTEN_PORT
 ARG NGINX_ENABLE_ACCESS_LOG
@@ -61,10 +61,9 @@ COPY conf/fastcgi.d/ $NGINX_CONF_PREFIX/fastcgi.d/
 COPY template/ /template-nginx/
 
 RUN chmod -R +x /usr/local/bin \
-	&& /usr/local/bin/php-fpm-entrypoint.sh \
-	&& /usr/local/bin/nginx-entrypoint.sh
     && mkdir -p \
 		$CERTS_DIR \
+		$NGINX_LIB_DIR/tmp \
 		$NGINX_CACHE_PREFIX/fastcgi \
 		$NGINX_CACHE_PREFIX/proxy \
 		$NGINX_CONF_PREFIX/after.vhost.d \
@@ -76,13 +75,18 @@ RUN chmod -R +x /usr/local/bin \
 		$NGINX_CACHE_PREFIX \
 		$NGINX_LOG_PREFIX \
 		$NGINX_LIB_DIR \
+		$NGINX_LIB_DIR/tmp \
 		$NGINX_CONF_PREFIX \
 		$NGINX_SERVER_ROOT \
 		$CACHE_PREFIX \
 		$VAR_PREFIX \
 		/run/nginx/ \
-		$CERTS_DIR
+		$CERTS_DIR \
+	&& /usr/local/bin/php-fpm-entrypoint.sh \
+	&& /usr/local/bin/nginx-entrypoint.sh
 
 EXPOSE $NGINX_LISTEN_PORT
+
+#USER $WWW_USER
 
 #CMD ["supervisord","-n","-c","/etc/supervisord.conf"]
