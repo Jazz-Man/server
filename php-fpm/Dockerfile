@@ -137,6 +137,7 @@ ADD https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar /u
 
 RUN chmod -R +x /usr/local/bin \
     && echo 'alias wp="wp --allow-root"' >> /root/.bashrc \
+    && rm -rf $PHP_CONF_PREFIX/php-fpm.d/*.conf \
     && /usr/local/bin/php-fpm-entrypoint.sh \
     && mkdir -p \
         $VAR_PREFIX \
@@ -152,9 +153,7 @@ RUN chmod -R +x /usr/local/bin \
 		$VAR_PREFIX \
 		$PHP_LIB_DIR \
 		$PHP_LISTEN_PREFIX \
-    && rm -rf /etc/php7/php-fpm.d/*.conf
-
-RUN  composer global config sort-packages true \
+	&& composer global config sort-packages true \
 	&& composer global config preferred-install dist \
 	&& composer global config optimize-autoloader true \
 	&& composer global config classmap-authoritative true \
