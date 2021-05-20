@@ -140,6 +140,7 @@ RUN set -x \
 		$CACHE_PREFIX \
 		$VAR_PREFIX \
 		$PHP_LIB_DIR \
+		$PHP_LISTEN_PREFIX \
     && rm -rf /etc/php7/php-fpm.d/*.conf
 
 ADD https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar /usr/local/bin/wp
