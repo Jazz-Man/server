@@ -59,7 +59,7 @@ COPY --from=vsokolyk/mozjpeg /release/mozjpeg*.apk /mozjpeg/
 
 RUN set -x \
 	&& addgroup -g 82 -S $WWW_USER \
-    && adduser -u 82 -D -S -H -s /sbin/nologin -G $WWW_USER $WWW_USER_GROUP \
+    && adduser -u 82 -D -S -h /home/$WWW_USER -s /sbin/nologin -G $WWW_USER $WWW_USER_GROUP \
     && echo "@main-edge http://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories \
     && echo "@community-edge http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories \
     && echo "@testing-edge http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
@@ -128,7 +128,16 @@ RUN set -x \
       php7-zlib@community-edge \
       php7-yaml@community-edge \
       composer@community-legacy \
-      mysql-client@main-edge \
+      mysql-client@main-edge
+
+COPY ./template/* /template-php-fpm/
+COPY ./docker-entrypoint.sh /usr/local/bin/php-fpm-entrypoint.sh
+
+ADD https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar /usr/local/bin/wp
+
+RUN chmod -R +x /usr/local/bin \
+    && echo 'alias wp="wp --allow-root"' >> /root/.bashrc \
+    && /usr/local/bin/php-fpm-entrypoint.sh \
     && mkdir -p \
         $VAR_PREFIX \
 		$PHP_LIB_DIR/sessions \
@@ -145,15 +154,7 @@ RUN set -x \
 		$PHP_LISTEN_PREFIX \
     && rm -rf /etc/php7/php-fpm.d/*.conf
 
-ADD https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar /usr/local/bin/wp
-
-COPY ./template/* /template-php-fpm/
-COPY ./docker-entrypoint.sh /usr/local/bin/php-fpm-entrypoint.sh
-
-RUN chmod -R +x /usr/local/bin \
-	&& echo 'alias wp="wp --allow-root"' >> /root/.bashrc \
-	&& /usr/local/bin/php-fpm-entrypoint.sh \
-	&& composer global config sort-packages true \
+RUN  composer global config sort-packages true \
 	&& composer global config preferred-install dist \
 	&& composer global config optimize-autoloader true \
 	&& composer global config classmap-authoritative true \
