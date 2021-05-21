@@ -71,7 +71,7 @@ RUN chmod -R +x /usr/local/bin \
 		$NGINX_CONF_PREFIX/sites-available \
 	    /etc/supervisor/conf.d \
 	    $NGINX_SERVER_ROOT/$NGINX_DOCROOT \
-	&& chown $WWW_USER:$WWW_USER_GROUP \
+	&& chown -R $WWW_USER:$WWW_USER_GROUP \
 		$NGINX_CACHE_PREFIX \
 		$NGINX_LOG_PREFIX \
 		$NGINX_LIB_DIR \
