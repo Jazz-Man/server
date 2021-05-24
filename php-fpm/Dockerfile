@@ -188,4 +188,4 @@ RUN chmod -R +x /usr/local/bin \
 	&& rm -rf $CACHE_PREFIX/apk/* \
 	&& rm -rf $COMPOSER_CACHE_DIR/*
 
-USER $WWW_USER
+#USER $WWW_USER
