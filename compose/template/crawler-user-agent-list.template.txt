@@ -1,0 +1,6 @@
+"Semrush ContentAnalyzer*"
+"~*pinterest.*ios*"
+"~*mail\.ru*"
+"~*seznambot*"
+"~*screaming*"
+"~*nginx-amplify-agent*"

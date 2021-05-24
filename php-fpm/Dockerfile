@@ -22,13 +22,15 @@ ARG PHP_SESSION_SERIALIZE_HANDLER
 ARG WWW_USER
 ARG WWW_USER_GROUP
 ARG REDIS_UPSTREAM
+ARG CACHE_PREFIX=/var/cache
+ARG COMPOSER_HOME=/opt/composer
 
 ENV TERM=xterm \
 	PAGER=more \
 	WWW_USER=${WWW_USER:-www-data} \
 	WWW_USER_GROUP=${WWW_USER_GROUP:-www-data} \
 	VAR_PREFIX=/var/run \
-	CACHE_PREFIX=/var/cache \
+	CACHE_PREFIX=${CACHE_PREFIX} \
 	TEMP_PREFIX=/tmp \
 	PHP_LOG_PREFIX=/var/log/php-fpm \
 	PHP_LISTEN_PREFIX=${VAR_PREFIX}/php-fpm \
@@ -53,9 +55,23 @@ ENV TERM=xterm \
     PHP_MAX_EXECUTION_TIME=${PHP_MAX_EXECUTION_TIME:-300} \
     PHP_OPCACHE_ENABLE=${PHP_OPCACHE_ENABLE:-1} \
     PHP_SESSION_SERIALIZE_HANDLER=${PHP_SESSION_SERIALIZE_HANDLER:-igbinary} \
-    REDIS_UPSTREAM=${REDIS_UPSTREAM:-false}
+    REDIS_UPSTREAM=${REDIS_UPSTREAM:-false} \
+    COMPOSER_HTACCESS_PROTECT=1 \
+    COMPOSER_HOME=${COMPOSER_HOME} \
+    COMPOSER_BIN_DIR=/usr/local/bin \
+    COMPOSER_CACHE_DIR=${CACHE_PREFIX}/composer
 
 COPY --from=vsokolyk/mozjpeg /release/mozjpeg*.apk /mozjpeg/
+
+RUN mkdir -p \
+		$VAR_PREFIX \
+		$CACHE_PREFIX \
+		$PHP_LIB_DIR/sessions \
+		$PHP_LIB_DIR/opcache \
+		$PHP_LOG_PREFIX \
+		$PHP_LISTEN_PREFIX \
+		$COMPOSER_HOME \
+		$COMPOSER_CACHE_DIR
 
 RUN set -x \
 	&& addgroup -g 82 -S $WWW_USER \
@@ -127,24 +143,35 @@ RUN set -x \
       php7-zip@community-edge \
       php7-zlib@community-edge \
       php7-yaml@community-edge \
-      composer@community-legacy \
-      mysql-client@main-edge
+      mysql-client@main-edge \
+      gettext@main-edge \
+      composer@community-legacy
 
 COPY ./template/* /template-php-fpm/
 COPY ./docker-entrypoint.sh /usr/local/bin/php-fpm-entrypoint.sh
-
-ADD https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar /usr/local/bin/wp
 
 RUN chmod -R +x /usr/local/bin \
     && echo 'alias wp="wp --allow-root"' >> /root/.bashrc \
     && rm -rf $PHP_CONF_PREFIX/php-fpm.d/*.conf \
     && /usr/local/bin/php-fpm-entrypoint.sh \
-    && mkdir -p \
-        $VAR_PREFIX \
-		$PHP_LIB_DIR/sessions \
-		$PHP_LIB_DIR/opcache \
-	    $PHP_LOG_PREFIX \
-	    $PHP_LISTEN_PREFIX \
+	&& composer global config sort-packages true \
+	&& composer global config preferred-install dist \
+	&& composer global config optimize-autoloader true \
+	&& composer global config classmap-authoritative true \
+	&& composer global config apcu-autoloader true \
+	&& composer global require \
+			hirak/prestissimo \
+#			dg/composer-cleaner \
+			roave/security-advisories:dev-master \
+	&& composer global require \
+		wp-cli/wp-cli-bundle \
+		wp-cli/admin-command \
+		wp-cli/dist-archive-command \
+		wp-cli/doctor-command \
+		wp-cli/find-command \
+		wp-cli/profile-command \
+		wp-cli/scaffold-package-command \
+	&& rm /usr/local/bin/composer \
 	&& chown -R \
 		$WWW_USER:$WWW_USER_GROUP \
 		$PHP_CONF_PREFIX \
@@ -153,14 +180,12 @@ RUN chmod -R +x /usr/local/bin \
 		$VAR_PREFIX \
 		$PHP_LIB_DIR \
 		$PHP_LISTEN_PREFIX \
-		/usr/local/bin/wp \
-	&& composer global config sort-packages true \
-	&& composer global config preferred-install dist \
-	&& composer global config optimize-autoloader true \
-	&& composer global config classmap-authoritative true \
-	&& composer global config apcu-autoloader true \
-	&& composer global require hirak/prestissimo \
+		$COMPOSER_HOME \
+		$COMPOSER_CACHE_DIR \
+		/usr/local/bin \
 	&& rm -rf $PHP_LIB_DIR/opcache/* \
 	&& rm -rf $TEMP_PREFIX/* \
 	&& rm -rf $CACHE_PREFIX/apk/* \
-	&& rm -rf /root/.composer/cache
+	&& rm -rf $COMPOSER_CACHE_DIR/*
+
+USER $WWW_USER

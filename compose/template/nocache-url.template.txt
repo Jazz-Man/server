@@ -1,0 +1,9 @@
+~*\/wp-admin\/.*
+~*\/wp-content/plugins\/.*
+~*\/wp-[a-zA-Z0-9-]+\.php
+~*\/feed\/.*
+~*\/administrator\/.*
+~*\/sitemap(_index)?.xml
+~*\/xmlrpc.php
+~*\/wp-.*.php
+~*\/index.php

@@ -19,6 +19,7 @@ image/tiff
 image/vnd.microsoft.icon
 image/x-icon
 image/webp
+text/html
 text/x-component
 text/x-js
 text/css
