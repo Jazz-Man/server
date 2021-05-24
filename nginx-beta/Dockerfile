@@ -1,4 +1,4 @@
-FROM vsokolyk/php-fpm:release-1.2.0
+FROM vsokolyk/php-fpm:release-1.2.3
 
 ARG NGINX_LISTEN_PORT
 ARG NGINX_ENABLE_ACCESS_LOG
