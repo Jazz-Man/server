@@ -1,8 +1,7 @@
-FROM vsokolyk/php-fpm:release-1.2.3
+FROM vsokolyk/php-fpm:release-1.2.4
 
 ARG NGINX_LISTEN_PORT
 ARG NGINX_ENABLE_ACCESS_LOG
-ARG NGINX_ENABLE_ERROR_LOG
 ARG NGINX_ENABLE_SERVER_ERROR_LOG
 ARG NGINX_ENABLE_SERVER_ACCESS_LOG
 ARG NGINX_SERVER_NAME
@@ -11,6 +10,7 @@ ARG NO_LOGS_USER_AGENT='Monit'
 ARG ROBOT_NOINDEX=false
 ARG NGINX_SERVER_ROOT=/var/www/html
 ARG NGINX_DOCROOT=""
+ARG NGINX_ENABLE_NAXSI=0
 ARG CERTS_DIR=/ssl/certs/
 
 ENV CERTS_DIR=${CERTS_DIR} \
@@ -19,14 +19,14 @@ ENV CERTS_DIR=${CERTS_DIR} \
     NGINX_LOG_PREFIX=/var/log/nginx \
     NGINX_LIB_DIR=/var/lib/nginx \
     NGINX_ENABLE_ACCESS_LOG=${NGINX_ENABLE_ACCESS_LOG:-false} \
-    NGINX_ENABLE_ERROR_LOG=${NGINX_ENABLE_ERROR_LOG:-true} \
     NGINX_ENABLE_SERVER_ERROR_LOG=${NGINX_ENABLE_SERVER_ERROR_LOG:-true} \
-    NGINX_ENABLE_SERVER_ACCESS_LOG=${NGINX_ENABLE_SERVER_ACCESS_LOG:-true} \
+    NGINX_ENABLE_SERVER_ACCESS_LOG=${NGINX_ENABLE_SERVER_ACCESS_LOG:-false} \
     NGINX_CONF_PREFIX=/etc/nginx \
     NGINX_SERVER_NAME=${NGINX_SERVER_NAME:-_} \
     NGINX_SERVER_ROOT=${NGINX_SERVER_ROOT:-/var/www/html} \
     NGINX_DOCROOT=${NGINX_DOCROOT} \
     NGINX_LISTEN_PORT=${NGINX_LISTEN_PORT:-80} \
+    NGINX_ENABLE_NAXSI=${NGINX_ENABLE_NAXSI:-0} \
     REDIS_UPSTREAM=${REDIS_UPSTREAM:-false} \
     NOCACHE_COOKIE='comment_author wp-postpass wordpress_test_cookie wordpress_no_cache wordpress_logged_in' \
     NO_LOGS_USER_AGENT=${NO_LOGS_USER_AGENT} \
@@ -82,6 +82,8 @@ RUN chmod -R +x /usr/local/bin \
 		$VAR_PREFIX \
 		/run/nginx/ \
 		$CERTS_DIR \
+		/etc/supervisord.conf \
+		/etc/supervisor/conf.d \
 	&& /usr/local/bin/php-fpm-entrypoint.sh \
 	&& /usr/local/bin/nginx-entrypoint.sh
 
