@@ -67,7 +67,8 @@ ENV TERM=xterm \
 
 COPY --from=vsokolyk/mozjpeg /release/mozjpeg*.apk /mozjpeg/
 
-RUN mkdir -p \
+RUN set -x \
+	&& mkdir -p \
 		$VAR_PREFIX \
 		$CACHE_PREFIX \
 		$PHP_LIB_DIR/sessions \
@@ -75,9 +76,7 @@ RUN mkdir -p \
 		$PHP_LOG_PREFIX \
 		$PHP_LISTEN_PREFIX \
 		$COMPOSER_HOME \
-		$COMPOSER_CACHE_DIR
-
-RUN set -x \
+		$COMPOSER_CACHE_DIR \
 	&& addgroup -g 82 -S $WWW_USER \
     && adduser -u 82 -D -S -h /home/$WWW_USER -s /sbin/nologin -G $WWW_USER $WWW_USER_GROUP \
     && echo "@main-edge http://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories \
@@ -155,7 +154,7 @@ COPY ./template/* /template-php-fpm/
 COPY ./docker-entrypoint.sh /usr/local/bin/php-fpm-entrypoint.sh
 
 RUN chmod -R +x /usr/local/bin \
-    && echo 'alias wp="wp --allow-root"' >> /root/.bashrc \
+    && echo 'alias wp="wp --allow-root"' >> ~/.bashrc \
     && rm -rf $PHP_CONF_PREFIX/php-fpm.d/*.conf \
     && /usr/local/bin/php-fpm-entrypoint.sh \
 	&& composer global config sort-packages true \
